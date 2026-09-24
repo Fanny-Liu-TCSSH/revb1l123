@@ -1512,7 +1512,7 @@
        9. APPLICATION CONSTANTS & PERSISTENCE STATE LOGIC
        ========================================================== */
     const PASS_SCORE = 80;
-    const CHEAT_SHEET_URL = "assets/Grammar_Rescue_L1-L3_Exam_Cheat_Sheet_UPDATED_Emotion.pdf";
+    const CHEAT_SHEET_URL = "./assets/exam-cheat-sheet.pdf";
     const CHEAT_SHEET_REQUIRES_PASS = true;
     const STORAGE_KEY = 'grammarRescueData';
 
@@ -2119,7 +2119,7 @@
     function triggerPdfDownload() {
       const link = document.createElement('a');
       link.href = CHEAT_SHEET_URL;
-      link.download = "Grammar_Rescue_L1-L3_Exam_Cheat_Sheet_UPDATED_Emotion.pdf";
+      link.download = "Grammar_Rescue_Exam_Cheat_Sheet.pdf";
       // 移除 target="_blank"，避免瀏覽器開新分頁停留於 about:blank
       document.body.appendChild(link);
       link.click();
