@@ -1515,6 +1515,8 @@
     const CHEAT_SHEET_URL = "./assets/exam-cheat-sheet.pdf";
     const CHEAT_SHEET_REQUIRES_PASS = true;
     const STORAGE_KEY = 'grammarRescueData';
+    const GAS_WEB_APP_URL =
+      "https://script.google.com/macros/s/AKfycbysAgWsY9rHXRPfnWhGGsrKCQVylRj5QEay6ijT1R-FgBU2cmwD7tw3rafQ6VgT64e8vw/exec";
 
     /**
      * Randomizes the multiple-choice options while tracking the new correct index.
@@ -2169,6 +2171,42 @@
         passed: appState.passed,
         completedAt: appState.completedAt
       };
+    }
+
+    /* Submit the current Final Boss result to the Google Apps Script backend. */
+    async function submitStudentResultToSheet() {
+      if (!GAS_WEB_APP_URL) {
+        console.warn('GAS Web App URL 尚未設定。');
+        return false;
+      }
+
+      const payload = getStudentResultPayload();
+
+      // Do not send incomplete identity data.
+      if (!payload.className || !payload.seatNumber || !payload.studentName) {
+        console.warn('學生基本資料不完整，取消送出成績。', payload);
+        return false;
+      }
+
+      try {
+        await fetch(GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'text/plain;charset=utf-8'
+          },
+          body: JSON.stringify(payload),
+          mode: 'no-cors',
+          keepalive: true
+        });
+
+        // In no-cors mode the browser cannot read the GAS response body.
+        // Reaching here means the browser accepted the request for sending.
+        console.log('Grammar Rescue result submitted to GAS.', payload);
+        return true;
+      } catch (error) {
+        console.error('Failed to submit Grammar Rescue result:', error);
+        return false;
+      }
     }
 
     /* Update Dashboard and Rewards UI */
@@ -3904,6 +3942,10 @@
           saveState();
 
           const hasPassed = checkPassRequirements(overallScore);
+
+          // Send every completed Final Boss attempt to the Google Sheet backend.
+          // GAS will create a new row for a new student or update the existing row.
+          void submitStudentResultToSheet();
 
           if (hasPassed) {
             playSound('unlock');
